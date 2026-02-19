@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Gestión de Palets</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;900&family=Barlow:wght@400;500;600&display=swap');
+
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --card: #21253a;
+    --border: #2e3348;
+    --accent: #f5a623;
+    --accent2: #3ecf8e;
+    --danger: #e84040;
+    --text: #e8eaf0;
+    --muted: #7a7f9a;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    font-family: 'Barlow', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding-bottom: 80px;
+  }
+
+  header {
+    background: var(--surface);
+    border-bottom: 2px solid var(--accent);
+    padding: 14px 16px 10px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  header h1 {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 900;
+    font-size: 22px;
+    letter-spacing: 1px;
+    color: var(--accent);
+    text-transform: uppercase;
+  }
+
+  header span {
+    font-size: 12px;
+    color: var(--muted);
+    font-weight: 500;
+  }
+
+  .tab-bar {
+    display: flex;
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+  }
+
+  .tab-btn {
+    flex: 1;
+    border: none;
+    background: none;
+    color: var(--muted);
+    padding: 12px 4px 8px;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: color 0.2s;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .tab-btn .ico { font-size: 20px; }
+  .tab-btn.active { color: var(--accent); }
+
+  .screen { display: none; padding: 16px; }
+  .screen.active { display: block; }
+
+  /* Cards palets */
+  .palet-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    margin-bottom: 12px;
+    overflow: hidden;
+    transition: border-color 0.2s;
+  }
+
+  .palet-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 14px 12px;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .palet-name {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: 0.5px;
+  }
+
+  .palet-meta {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+
+  .badge {
+    background: var(--accent);
+    color: #000;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 13px;
+    padding: 3px 10px;
+    border-radius: 20px;
+  }
+
+  .badge.green { background: var(--accent2); }
+
+  .chevron {
+    font-size: 18px;
+    color: var(--muted);
+    margin-left: 10px;
+    transition: transform 0.2s;
+  }
+
+  .palet-card.open .chevron { transform: rotate(180deg); }
+
+  .palet-body { display: none; padding: 0 14px 14px; }
+  .palet-card.open .palet-body { display: block; }
+
+  .pkg-row {
+    display: flex;
+    align-items: center;
+    background: var(--surface);
+    border-radius: 8px;
+    padding: 10px 12px;
+    margin-bottom: 8px;
+    gap: 10px;
+  }
+
+  .pkg-info { flex: 1; }
+  .pkg-name { font-weight: 600; font-size: 14px; }
+  .pkg-qty {
+    font-size: 12px;
+    color: var(--accent2);
+    font-weight: 600;
+    margin-top: 2px;
+  }
+
+  .btn-icon {
+    border: none;
+    background: none;
+    cursor: pointer;
+    padding: 6px;
+    border-radius: 6px;
+    font-size: 18px;
+    line-height: 1;
+    transition: background 0.15s;
+  }
+
+  .btn-icon:active { background: var(--border); }
+  .btn-icon.del { color: var(--danger); }
+  .btn-icon.edit { color: var(--accent); }
+
+  .action-row {
+    display: flex;
+    gap: 8px;
+    margin-top: 4px;
+  }
+
+  .btn {
+    border: none;
+    border-radius: 8px;
+    padding: 10px 16px;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    transition: opacity 0.2s, transform 0.1s;
+    text-transform: uppercase;
+  }
+
+  .btn:active { opacity: 0.8; transform: scale(0.97); }
+  .btn-primary { background: var(--accent); color: #000; }
+  .btn-secondary { background: var(--accent2); color: #000; }
+  .btn-danger { background: var(--danger); color: #fff; }
+  .btn-outline { background: transparent; border: 1.5px solid var(--border); color: var(--text); }
+  .btn-full { width: 100%; }
+
+  /* FAB */
+  .fab {
+    position: fixed;
+    bottom: 72px;
+    right: 16px;
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: #000;
+    border: none;
+    font-size: 26px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 20px rgba(245,166,35,0.5);
+    z-index: 99;
+    transition: transform 0.15s;
+  }
+
+  .fab:active { transform: scale(0.92); }
+
+  /* Modal */
+  .modal-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.7);
+    z-index: 200;
+    display: none;
+    align-items: flex-end;
+  }
+
+  .modal-overlay.open { display: flex; }
+
+  .modal {
+    background: var(--surface);
+    border-radius: 20px 20px 0 0;
+    width: 100%;
+    padding: 20px 20px 36px;
+    animation: slideUp 0.25s ease;
+    border-top: 2px solid var(--accent);
+  }
+
+  @keyframes slideUp {
+    from { transform: translateY(100%); }
+    to { transform: translateY(0); }
+  }
+
+  .modal h2 {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 16px;
+    color: var(--accent);
+    text-transform: uppercase;
+  }
+
+  .field {
+    margin-bottom: 12px;
+  }
+
+  .field label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 6px;
+  }
+
+  .field input {
+    width: 100%;
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-family: 'Barlow', sans-serif;
+    font-size: 16px;
+    padding: 11px 14px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .field input:focus { border-color: var(--accent); }
+
+  .modal-actions { display: flex; gap: 10px; margin-top: 16px; }
+  .modal-actions .btn { flex: 1; }
+
+  /* Resumen screen */
+  .stat-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .stat-box {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px;
+    text-align: center;
+  }
+
+  .stat-num {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 36px;
+    font-weight: 900;
+    color: var(--accent);
+    line-height: 1;
+  }
+
+  .stat-label {
+    font-size: 11px;
+    color: var(--muted);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-top: 4px;
+  }
+
+  .section-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 12px;
+  }
+
+  .resumen-palet {
+    background: var(--card);
+    border-radius: 10px;
+    padding: 12px 14px;
+    margin-bottom: 10px;
+    border-left: 3px solid var(--accent);
+  }
+
+  .resumen-palet-name {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+  }
+
+  .resumen-pkg {
+    font-size: 13px;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 48px 20px;
+    color: var(--muted);
+  }
+
+  .empty-state .icon { font-size: 48px; margin-bottom: 12px; }
+  .empty-state p { font-size: 14px; line-height: 1.5; }
+
+  .confirm-del {
+    display: none;
+    background: rgba(232,64,64,0.1);
+    border: 1px solid var(--danger);
+    border-radius: 8px;
+    padding: 12px;
+    margin-top: 10px;
+    text-align: center;
+  }
+
+  .confirm-del.show { display: block; }
+  .confirm-del p { font-size: 13px; margin-bottom: 10px; color: var(--text); }
+  .confirm-del .btn-row { display: flex; gap: 8px; }
+  .confirm-del .btn-row .btn { flex: 1; }
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>🏗 GestorPalet</h1>
+    <span id="header-date"></span>
+  </div>
+  <div style="text-align:right">
+    <div style="font-size:20px">📦</div>
+    <span id="total-palets-header" style="font-size:11px;color:var(--muted)"></span>
+  </div>
+</header>
+
+<!-- SCREEN: Palets -->
+<div id="screen-palets" class="screen active">
+  <div id="palets-list"></div>
+  <div id="empty-palets" class="empty-state" style="display:none">
+    <div class="icon">📦</div>
+    <p>No hay palets registrados.<br>Tocá el botón <strong>+</strong> para agregar uno.</p>
+  </div>
+</div>
+
+<!-- SCREEN: Resumen -->
+<div id="screen-resumen" class="screen">
+  <div class="stat-grid">
+    <div class="stat-box">
+      <div class="stat-num" id="stat-palets">0</div>
+      <div class="stat-label">Palets activos</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-num" id="stat-paquetes">0</div>
+      <div class="stat-label">Total paquetes</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-num" id="stat-tipos">0</div>
+      <div class="stat-label">Tipos de producto</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-num" id="stat-unidades">0</div>
+      <div class="stat-label">Unidades totales</div>
+    </div>
+  </div>
+  <div class="section-title">Detalle por palet</div>
+  <div id="resumen-lista"></div>
+  <button class="btn btn-secondary btn-full" onclick="exportarExcel()" style="margin-top:16px">
+    📊 Exportar a Excel
+  </button>
+</div>
+
+<!-- FAB -->
+<button class="fab" id="fab-btn" onclick="abrirModalPalet()">+</button>
+
+<!-- Tab bar -->
+<div class="tab-bar">
+  <button class="tab-btn active" onclick="cambiarScreen('palets',this)">
+    <span class="ico">📦</span>Palets
+  </button>
+  <button class="tab-btn" onclick="cambiarScreen('resumen',this)">
+    <span class="ico">📊</span>Resumen
+  </button>
+</div>
+
+<!-- Modal Nuevo Palet -->
+<div class="modal-overlay" id="modal-palet">
+  <div class="modal">
+    <h2 id="modal-palet-title">Nuevo Palet</h2>
+    <div class="field">
+      <label>Nombre del Palet</label>
+      <input type="text" id="input-palet-nombre" placeholder="Ej: Palet A, Zona 3..." autocomplete="off">
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="cerrarModalPalet()">Cancelar</button>
+      <button class="btn btn-primary" onclick="guardarPalet()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Nuevo Paquete -->
+<div class="modal-overlay" id="modal-paquete">
+  <div class="modal">
+    <h2 id="modal-paq-title">Agregar Paquete</h2>
+    <div class="field">
+      <label>Nombre del Producto</label>
+      <input type="text" id="input-paq-nombre" placeholder="Ej: Agua 500ml, Coca-Cola 2L..." autocomplete="off">
+    </div>
+    <div class="field">
+      <label>Cantidad de paquetes</label>
+      <input type="number" id="input-paq-cantidad" placeholder="Ej: 12" min="1" inputmode="numeric">
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="cerrarModalPaquete()">Cancelar</button>
+      <button class="btn btn-secondary" onclick="guardarPaquete()">Agregar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Eliminar Palet -->
+<div class="modal-overlay" id="modal-del-palet">
+  <div class="modal">
+    <h2>⚠️ Eliminar Palet</h2>
+    <p style="font-size:14px;color:var(--muted);line-height:1.5">
+      ¿Estás seguro que querés eliminar este palet y todos sus paquetes? Esta acción no se puede deshacer.
+    </p>
+    <div class="modal-actions" style="margin-top:20px">
+      <button class="btn btn-outline" onclick="cerrarModalDelPalet()">No, cancelar</button>
+      <button class="btn btn-danger" onclick="confirmarEliminarPalet()">Sí, eliminar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ===== ESTADO =====
+let palets = JSON.parse(localStorage.getItem('gp_palets') || '[]');
+let editingPaletId = null;
+let editingPaqIndex = null;
+let targetPaletId = null;
+let deletingPaletId = null;
+
+function save() {
+  localStorage.setItem('gp_palets', JSON.stringify(palets));
+}
+
+function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2,6); }
+
+// ===== PANTALLAS =====
+function cambiarScreen(name, btn) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('screen-' + name).classList.add('active');
+  btn.classList.add('active');
+
+  const fab = document.getElementById('fab-btn');
+  if (name === 'palets') {
+    fab.style.display = 'flex';
+    renderPalets();
+  } else {
+    fab.style.display = 'none';
+    renderResumen();
+  }
+}
+
+// ===== RENDER PALETS =====
+function renderPalets() {
+  const list = document.getElementById('palets-list');
+  const empty = document.getElementById('empty-palets');
+  updateHeader();
+
+  if (palets.length === 0) {
+    list.innerHTML = '';
+    empty.style.display = 'block';
+    return;
+  }
+
+  empty.style.display = 'none';
+  list.innerHTML = palets.map(p => {
+    const totalPkg = p.paquetes.reduce((a,b) => a + parseInt(b.cantidad), 0);
+    const pkgsHtml = p.paquetes.map((pkg, i) => `
+      <div class="pkg-row">
+        <div class="pkg-info">
+          <div class="pkg-name">${esc(pkg.nombre)}</div>
+          <div class="pkg-qty">📦 ${pkg.cantidad} paquete${pkg.cantidad!=1?'s':''}</div>
+        </div>
+        <button class="btn-icon edit" onclick="editarPaquete('${p.id}',${i})">✏️</button>
+        <button class="btn-icon del" onclick="eliminarPaquete('${p.id}',${i})">🗑</button>
+      </div>
+    `).join('');
+
+    return `
+      <div class="palet-card" id="palet-${p.id}">
+        <div class="palet-header" onclick="togglePalet('${p.id}')">
+          <div>
+            <div class="palet-name">${esc(p.nombre)}</div>
+            <div class="palet-meta">${p.paquetes.length} tipo${p.paquetes.length!=1?'s':''} · ${totalPkg} paquete${totalPkg!=1?'s':''}</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px">
+            <span class="badge">${totalPkg}</span>
+            <span class="chevron">▼</span>
+          </div>
+        </div>
+        <div class="palet-body">
+          ${pkgsHtml}
+          <div class="action-row">
+            <button class="btn btn-secondary" style="flex:1" onclick="abrirModalPaquete('${p.id}')">+ Paquete</button>
+            <button class="btn btn-outline" onclick="editarNombrePalet('${p.id}')">✏️ Nombre</button>
+            <button class="btn btn-danger" onclick="pedirEliminarPalet('${p.id}')">🗑</button>
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function togglePalet(id) {
+  const card = document.getElementById('palet-' + id);
+  card.classList.toggle('open');
+}
+
+function esc(str) {
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function updateHeader() {
+  document.getElementById('total-palets-header').textContent = palets.length + ' palet' + (palets.length!=1?'s':'');
+  const now = new Date();
+  document.getElementById('header-date').textContent = now.toLocaleDateString('es-AR', {weekday:'short',day:'numeric',month:'short'});
+}
+
+// ===== MODAL PALET =====
+function abrirModalPalet(id) {
+  editingPaletId = id || null;
+  const t = document.getElementById('modal-palet-title');
+  const inp = document.getElementById('input-palet-nombre');
+  if (id) {
+    const p = palets.find(x => x.id === id);
+    t.textContent = 'Editar Nombre';
+    inp.value = p.nombre;
+  } else {
+    t.textContent = 'Nuevo Palet';
+    inp.value = '';
+  }
+  document.getElementById('modal-palet').classList.add('open');
+  setTimeout(() => inp.focus(), 300);
+}
+
+function editarNombrePalet(id) { abrirModalPalet(id); }
+
+function cerrarModalPalet() {
+  document.getElementById('modal-palet').classList.remove('open');
+  editingPaletId = null;
+}
+
+function guardarPalet() {
+  const nombre = document.getElementById('input-palet-nombre').value.trim();
+  if (!nombre) { alert('Ingresá un nombre para el palet'); return; }
+
+  if (editingPaletId) {
+    const p = palets.find(x => x.id === editingPaletId);
+    p.nombre = nombre;
+  } else {
+    palets.push({ id: uid(), nombre, paquetes: [] });
+  }
+
+  save();
+  cerrarModalPalet();
+  renderPalets();
+}
+
+// ===== MODAL PAQUETE =====
+function abrirModalPaquete(paletId, editIdx) {
+  targetPaletId = paletId;
+  editingPaqIndex = editIdx !== undefined ? editIdx : null;
+  const inp1 = document.getElementById('input-paq-nombre');
+  const inp2 = document.getElementById('input-paq-cantidad');
+  const t = document.getElementById('modal-paq-title');
+
+  if (editingPaqIndex !== null) {
+    const palet = palets.find(p => p.id === paletId);
+    const pkg = palet.paquetes[editingPaqIndex];
+    inp1.value = pkg.nombre;
+    inp2.value = pkg.cantidad;
+    t.textContent = 'Editar Paquete';
+  } else {
+    inp1.value = '';
+    inp2.value = '';
+    t.textContent = 'Agregar Paquete';
+  }
+
+  document.getElementById('modal-paquete').classList.add('open');
+  setTimeout(() => inp1.focus(), 300);
+}
+
+function editarPaquete(paletId, idx) { abrirModalPaquete(paletId, idx); }
+
+function cerrarModalPaquete() {
+  document.getElementById('modal-paquete').classList.remove('open');
+  targetPaletId = null;
+  editingPaqIndex = null;
+}
+
+function guardarPaquete() {
+  const nombre = document.getElementById('input-paq-nombre').value.trim();
+  const cantidad = parseInt(document.getElementById('input-paq-cantidad').value);
+  if (!nombre) { alert('Ingresá el nombre del producto'); return; }
+  if (!cantidad || cantidad < 1) { alert('Ingresá una cantidad válida'); return; }
+
+  const palet = palets.find(p => p.id === targetPaletId);
+  if (editingPaqIndex !== null) {
+    palet.paquetes[editingPaqIndex] = { nombre, cantidad };
+  } else {
+    palet.paquetes.push({ nombre, cantidad });
+  }
+
+  save();
+  cerrarModalPaquete();
+  renderPalets();
+  // Mantener abierto el palet
+  const card = document.getElementById('palet-' + targetPaletId);
+  if (card) card.classList.add('open');
+}
+
+function eliminarPaquete(paletId, idx) {
+  if (!confirm('¿Eliminar este paquete?')) return;
+  const palet = palets.find(p => p.id === paletId);
+  palet.paquetes.splice(idx, 1);
+  save();
+  renderPalets();
+  const card = document.getElementById('palet-' + paletId);
+  if (card) card.classList.add('open');
+}
+
+// ===== ELIMINAR PALET =====
+function pedirEliminarPalet(id) {
+  deletingPaletId = id;
+  document.getElementById('modal-del-palet').classList.add('open');
+}
+
+function cerrarModalDelPalet() {
+  document.getElementById('modal-del-palet').classList.remove('open');
+  deletingPaletId = null;
+}
+
+function confirmarEliminarPalet() {
+  palets = palets.filter(p => p.id !== deletingPaletId);
+  save();
+  cerrarModalDelPalet();
+  renderPalets();
+}
+
+// ===== RESUMEN =====
+function renderResumen() {
+  const totalPalets = palets.length;
+  const totalPkgTypes = palets.reduce((a,p) => a + p.paquetes.length, 0);
+  const totalUnidades = palets.reduce((a,p) => a + p.paquetes.reduce((b,pkg) => b + parseInt(pkg.cantidad), 0), 0);
+  const totalPkgs = totalPkgTypes;
+
+  document.getElementById('stat-palets').textContent = totalPalets;
+  document.getElementById('stat-paquetes').textContent = totalPkgs;
+  document.getElementById('stat-tipos').textContent = [...new Set(palets.flatMap(p => p.paquetes.map(pkg => pkg.nombre)))].length;
+  document.getElementById('stat-unidades').textContent = totalUnidades;
+
+  const lista = document.getElementById('resumen-lista');
+  if (palets.length === 0) {
+    lista.innerHTML = '<div class="empty-state"><div class="icon">📊</div><p>No hay datos aún.</p></div>';
+    return;
+  }
+
+  lista.innerHTML = palets.map(p => {
+    const total = p.paquetes.reduce((a,b) => a + parseInt(b.cantidad), 0);
+    const pkgsStr = p.paquetes.map(pkg => `${pkg.nombre}: ${pkg.cantidad}`).join(' · ');
+    return `
+      <div class="resumen-palet">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div class="resumen-palet-name">${esc(p.nombre)}</div>
+          <span class="badge">${total} pkg</span>
+        </div>
+        <div class="resumen-pkg">${pkgsStr || 'Sin paquetes'}</div>
+      </div>
+    `;
+  }).join('');
+}
+
+// ===== EXPORTAR EXCEL =====
+function exportarExcel() {
+  if (palets.length === 0) { alert('No hay datos para exportar'); return; }
+
+  // Generar CSV con BOM para Excel
+  const bom = '\uFEFF';
+  let csv = bom + 'Palet;Producto;Cantidad de Paquetes\n';
+
+  palets.forEach(p => {
+    if (p.paquetes.length === 0) {
+      csv += `"${p.nombre}";"(sin paquetes)";"0"\n`;
+    } else {
+      p.paquetes.forEach(pkg => {
+        csv += `"${p.nombre}";"${pkg.nombre}";"${pkg.cantidad}"\n`;
+      });
+    }
+  });
+
+  // Agregar resumen
+  csv += '\n';
+  csv += 'RESUMEN\n';
+  csv += `Total Palets;${palets.length}\n`;
+  const totalUnidades = palets.reduce((a,p) => a + p.paquetes.reduce((b,pkg) => b + parseInt(pkg.cantidad), 0), 0);
+  csv += `Total Unidades;${totalUnidades}\n`;
+  csv += `Fecha de exportación;${new Date().toLocaleDateString('es-AR')}\n`;
+
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  const fecha = new Date().toISOString().split('T')[0];
+  a.href = url;
+  a.download = `palets-${fecha}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+// ===== CERRAR MODALES AL TOCAR FONDO =====
+document.querySelectorAll('.modal-overlay').forEach(overlay => {
+  overlay.addEventListener('click', function(e) {
+    if (e.target === this) {
+      this.classList.remove('open');
+    }
+  });
+});
+
+// Enter en inputs
+document.getElementById('input-palet-nombre').addEventListener('keypress', e => { if(e.key==='Enter') guardarPalet(); });
+document.getElementById('input-paq-cantidad').addEventListener('keypress', e => { if(e.key==='Enter') guardarPaquete(); });
+
+// ===== INIT =====
+renderPalets();
+updateHeader();
+</script>
+</body>
+</html>
