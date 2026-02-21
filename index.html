@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Gestión de Palets</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;900&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header>
+  <div>
+    <h1>🏗 GestorPalet</h1>
+    <span id="header-date"></span>
+  </div>
+  <div style="text-align:right">
+    <div style="font-size:20px">📦</div>
+    <span id="total-palets-header" style="font-size:11px;color:var(--muted)"></span>
+  </div>
+</header>
+
+<!-- SCREEN: Palets -->
+<div id="screen-palets" class="screen active">
+  <div id="palets-list"></div>
+  <div id="empty-palets" class="empty-state" style="display:none">
+    <div class="icon">📦</div>
+    <p>No hay palets registrados.<br>Tocá el botón <strong>+</strong> para agregar uno.</p>
+  </div>
+</div>
+
+<!-- SCREEN: Resumen -->
+<div id="screen-resumen" class="screen">
+  <div class="stat-grid">
+    <div class="stat-box">
+      <div class="stat-num" id="stat-palets">0</div>
+      <div class="stat-label">Palets activos</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-num" id="stat-paquetes">0</div>
+      <div class="stat-label">Total paquetes</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-num" id="stat-tipos">0</div>
+      <div class="stat-label">Tipos de producto</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-num" id="stat-unidades">0</div>
+      <div class="stat-label">Unidades totales</div>
+    </div>
+  </div>
+  <div class="section-title">Detalle por palet</div>
+  <div id="resumen-lista"></div>
+  <button class="btn btn-secondary btn-full" onclick="exportarExcel()" style="margin-top:16px">
+    📊 Exportar a Excel
+  </button>
+</div>
+
+<!-- SCREEN: Buscar -->
+<div id="screen-buscar" class="screen">
+  <div class="search-bar-wrap">
+    <input type="text" id="search-input" placeholder="Buscar por nombre o código..." autocomplete="off" oninput="buscar(this.value)">
+    <button class="search-clear" id="search-clear-btn" onclick="limpiarBusqueda()">✕</button>
+    <span class="search-ico">🔍</span>
+  </div>
+  <div id="search-results">
+    <div class="search-hint">
+      <div class="icon">🔍</div>
+      <p>Escribí el nombre o código<br>de un producto para buscarlo<br>en todos los palets.</p>
+    </div>
+  </div>
+</div>
+
+<!-- FAB -->
+<button class="fab" id="fab-btn" onclick="abrirModalPalet()">+</button>
+
+<!-- Tab bar -->
+<div class="tab-bar">
+  <button class="tab-btn active" onclick="cambiarScreen('palets',this)">
+    <span class="ico">📦</span>Palets
+  </button>
+  <button class="tab-btn" onclick="cambiarScreen('resumen',this)">
+    <span class="ico">📊</span>Resumen
+  </button>
+  <button class="tab-btn" onclick="cambiarScreen('buscar',this)">
+    <span class="ico">🔍</span>Buscar
+  </button>
+</div>
+
+<!-- Modal Nuevo Palet -->
+<div class="modal-overlay" id="modal-palet">
+  <div class="modal">
+    <h2 id="modal-palet-title">Nuevo Palet</h2>
+    <div class="field">
+      <label>Nombre del Palet</label>
+      <input type="text" id="input-palet-nombre" placeholder="Ej: Palet A, Zona 3..." autocomplete="off">
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="cerrarModalPalet()">Cancelar</button>
+      <button class="btn btn-primary" onclick="guardarPalet()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Nuevo Paquete -->
+<div class="modal-overlay" id="modal-paquete">
+  <div class="modal">
+    <h2 id="modal-paq-title">Agregar Paquete</h2>
+    <div class="field">
+      <label>Nombre del Producto</label>
+      <input type="text" id="input-paq-nombre" placeholder="Ej: Agua 500ml, Coca-Cola 2L..." autocomplete="off">
+    </div>
+    <div class="field">
+      <label>Código del Producto</label>
+      <input type="text" id="input-paq-codigo" placeholder="Ej: 7790040532145" autocomplete="off" inputmode="text">
+    </div>
+    <div class="field">
+      <label>Cantidad de paquetes</label>
+      <input type="number" id="input-paq-cantidad" placeholder="Ej: 12" min="1" inputmode="numeric">
+    </div>
+    <div class="field">
+      <label>Fecha de Vencimiento</label>
+      <input type="date" id="input-paq-vencimiento">
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="cerrarModalPaquete()">Cancelar</button>
+      <button class="btn btn-secondary" onclick="guardarPaquete()">Agregar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Eliminar Palet -->
+<div class="modal-overlay" id="modal-del-palet">
+  <div class="modal">
+    <h2>⚠️ Eliminar Palet</h2>
+    <p style="font-size:14px;color:var(--muted);line-height:1.5">
+      ¿Estás seguro que querés eliminar este palet y todos sus paquetes? Esta acción no se puede deshacer.
+    </p>
+    <div class="modal-actions" style="margin-top:20px">
+      <button class="btn btn-outline" onclick="cerrarModalDelPalet()">No, cancelar</button>
+      <button class="btn btn-danger" onclick="confirmarEliminarPalet()">Sí, eliminar</button>
+    </div>
+  </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
