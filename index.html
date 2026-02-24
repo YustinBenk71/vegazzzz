@@ -9,6 +9,7 @@
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+
 <header>
   <div>
     <h1>🏗 GestorPalet</h1>
@@ -51,9 +52,17 @@
   </div>
   <div class="section-title">Detalle por palet</div>
   <div id="resumen-lista"></div>
-  <button class="btn btn-secondary btn-full" onclick="exportarExcel()" style="margin-top:16px">
-    📊 Exportar a Excel
-  </button>
+  <div style="display:flex;gap:10px;margin-top:16px;flex-direction:column">
+    <button class="btn btn-secondary btn-full" onclick="exportarExcel()">
+      📊 Exportar a Excel
+    </button>
+    <button class="btn btn-secondary btn-full" onclick="descargarJSON()">
+      💾 Descargar JSON
+    </button>
+    <button class="btn btn-outline btn-full" onclick="abrirCargadorJSON()">
+      📂 Cargar JSON
+    </button>
+  </div>
 </div>
 
 <!-- SCREEN: Buscar -->
@@ -143,6 +152,10 @@
   </div>
 </div>
 
+<!-- Input oculto para cargar JSON -->
+<input type="file" id="file-input" accept=".json" style="display:none" onchange="cargarJSON()">
+
 <script src="app.js"></script>
+
 </body>
 </html>
