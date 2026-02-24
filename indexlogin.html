@@ -155,7 +155,7 @@ body {
 <div class="auth-container">
     <h1>🏗 GestorPalet</h1>
     
-    <!-- Login Box -->
+    <!-- Login -->
     <div class="auth-box" id="login-box">
         <h2>Inicia Sesión</h2>
         <div id="login-error" class="error" style="display:none;"></div>
@@ -173,7 +173,7 @@ body {
         </div>
     </div>
 
-    <!-- Registro Box (oculto al inicio) -->
+    <!-- Registro  -->
     <div class="auth-box" id="registro-box" style="display:none;">
         <h2>Crear Cuenta</h2>
         <div id="registro-error" class="error" style="display:none;"></div>
@@ -196,7 +196,7 @@ body {
     </div>
 </div>
 
-<!-- Firebase SDK (Modular) -->
+<!-- Firebase SDK-->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-app.js";
 import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-auth.js";
@@ -214,7 +214,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 
-// Hacer las funciones globales
+// ACCIONES GENERALES TWICE WHAT IS LOVE WWWWWW
 window.mostrarLogin = function() {
     document.getElementById('login-box').style.display = 'block';
     document.getElementById('registro-box').style.display = 'none';
@@ -238,7 +238,7 @@ function mostrarError(id, mensaje) {
     errorDiv.style.display = 'block';
 }
 
-// LOGIN
+// LOGIN DE USUARIO
 window.entrar = async function() {
     const email = document.getElementById('login-email').value.trim();
     const password = document.getElementById('login-password').value.trim();
@@ -275,7 +275,7 @@ window.entrar = async function() {
     }
 }
 
-// REGISTRO
+// REGISTRO DE USUARIO ARROZ CHAUFA TENGO HAMBRE
 window.registrarse = async function() {
     const email = document.getElementById('registro-email').value.trim();
     const password = document.getElementById('registro-password').value.trim();
@@ -322,7 +322,7 @@ window.registrarse = async function() {
     }
 }
 
-// VERIFICAR SESIÓN ACTIVA
+// Si tienes sesion activa uwuwuwuw
 onAuthStateChanged(auth, (user) => {
     if (user) {
         localStorage.setItem('usuario-email', user.email);

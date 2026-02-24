@@ -98,7 +98,7 @@
   .screen { display: none; padding: 16px; }
   .screen.active { display: block; }
 
-  /* Cards palets */
+  
   .palet-card {
     background: var(--card);
     border: 1px solid var(--border);
@@ -238,7 +238,7 @@
   .btn-outline { background: transparent; border: 1.5px solid var(--border); color: var(--text); }
   .btn-full { width: 100%; }
 
-  /* FAB */
+  
   .fab {
     position: fixed;
     bottom: 72px;
@@ -261,7 +261,7 @@
 
   .fab:active { transform: scale(0.92); }
 
-  /* Modal */
+
   .modal-overlay {
     position: fixed; inset: 0;
     background: rgba(0,0,0,0.7);
@@ -327,7 +327,7 @@
   .modal-actions { display: flex; gap: 10px; margin-top: 16px; }
   .modal-actions .btn { flex: 1; }
 
-  /* Resumen screen */
+  
   .stat-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -414,7 +414,7 @@
   .confirm-del .btn-row { display: flex; gap: 8px; }
   .confirm-del .btn-row .btn { flex: 1; }
 
-  /* Search screen */
+  
   .search-bar-wrap {
     position: relative;
     margin-bottom: 16px;
