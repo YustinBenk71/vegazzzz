@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Gestión de Palets - Login</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;900&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --card: #21253a;
+    --border: #2e3348;
+    --accent: #f5a623;
+    --accent2: #3ecf8e;
+    --danger: #e84040;
+    --text: #e8eaf0;
+    --muted: #7a7f9a;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+    font-family: 'Barlow', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.auth-container {
+    width: 100%;
+    max-width: 400px;
+}
+
+.auth-container h1 {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 32px;
+    font-weight: 900;
+    color: var(--accent);
+    margin-bottom: 32px;
+    letter-spacing: 1px;
+    text-align: center;
+}
+
+.auth-box {
+    background: var(--surface);
+    border: 2px solid var(--border);
+    border-radius: 16px;
+    padding: 24px;
+    width: 100%;
+}
+
+.auth-box h2 {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--accent);
+    margin-bottom: 16px;
+    text-transform: uppercase;
+}
+
+.field {
+    margin-bottom: 16px;
+}
+
+.field label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 6px;
+}
+
+.field input {
+    width: 100%;
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-family: 'Barlow', sans-serif;
+    font-size: 16px;
+    padding: 11px 14px;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.field input:focus {
+    border-color: var(--accent);
+}
+
+.btn {
+    border: none;
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    transition: opacity 0.2s, transform 0.1s;
+    text-transform: uppercase;
+    width: 100%;
+}
+
+.btn:active {
+    opacity: 0.8;
+    transform: scale(0.97);
+}
+
+.btn-primary {
+    background: var(--accent);
+    color: #000;
+    margin-top: 16px;
+}
+
+.toggle-link {
+    text-align: center;
+    margin-top: 16px;
+    font-size: 14px;
+    color: var(--muted);
+}
+
+.toggle-link a {
+    color: var(--accent);
+    text-decoration: none;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.error {
+    background: rgba(232, 64, 64, 0.15);
+    border: 1px solid #e84040;
+    color: #e84040;
+    padding: 12px;
+    border-radius: 8px;
+    margin-bottom: 16px;
+    font-size: 13px;
+}
+
+.loading {
+    opacity: 0.6;
+    pointer-events: none;
+}
+</style>
+</head>
+<body>
+
+<div class="auth-container">
+    <h1>🏗 GestorPalet</h1>
+    
+    <!-- Login Box -->
+    <div class="auth-box" id="login-box">
+        <h2>Inicia Sesión</h2>
+        <div id="login-error" class="error" style="display:none;"></div>
+        <div class="field">
+            <label>Email</label>
+            <input type="email" id="login-email" placeholder="tu@email.com" autocomplete="off">
+        </div>
+        <div class="field">
+            <label>Contraseña</label>
+            <input type="password" id="login-password" placeholder="Tu contraseña">
+        </div>
+        <button class="btn btn-primary" id="btn-login" onclick="entrar()">Entrar</button>
+        <div class="toggle-link">
+            ¿No tienes cuenta? <a onclick="mostrarRegistro()">Regístrate</a>
+        </div>
+    </div>
+
+    <!-- Registro Box (oculto al inicio) -->
+    <div class="auth-box" id="registro-box" style="display:none;">
+        <h2>Crear Cuenta</h2>
+        <div id="registro-error" class="error" style="display:none;"></div>
+        <div class="field">
+            <label>Email</label>
+            <input type="email" id="registro-email" placeholder="tu@email.com" autocomplete="off">
+        </div>
+        <div class="field">
+            <label>Contraseña</label>
+            <input type="password" id="registro-password" placeholder="Tu contraseña (mín. 6 caracteres)">
+        </div>
+        <div class="field">
+            <label>Confirmar Contraseña</label>
+            <input type="password" id="registro-password2" placeholder="Confirma tu contraseña">
+        </div>
+        <button class="btn btn-primary" id="btn-registro" onclick="registrarse()">Registrarse</button>
+        <div class="toggle-link">
+            ¿Ya tienes cuenta? <a onclick="mostrarLogin()">Inicia sesión</a>
+        </div>
+    </div>
+</div>
+
+<!-- Firebase SDK (Modular) -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-auth.js";
+
+// Configuración Firebase
+const firebaseConfig = {
+  apiKey: "AIzaSyAj-Klw0UWECBTwVq1QpMb154aWFc_nV7c",
+  authDomain: "paletautheticator.firebaseapp.com",
+  projectId: "paletautheticator",
+  storageBucket: "paletautheticator.firebasestorage.app",
+  messagingSenderId: "824517944112",
+  appId: "1:824517944112:web:4e24f04594aafcd3451ef5"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+
+// Hacer las funciones globales
+window.mostrarLogin = function() {
+    document.getElementById('login-box').style.display = 'block';
+    document.getElementById('registro-box').style.display = 'none';
+    limpiarErrores();
+}
+
+window.mostrarRegistro = function() {
+    document.getElementById('login-box').style.display = 'none';
+    document.getElementById('registro-box').style.display = 'block';
+    limpiarErrores();
+}
+
+function limpiarErrores() {
+    document.getElementById('login-error').style.display = 'none';
+    document.getElementById('registro-error').style.display = 'none';
+}
+
+function mostrarError(id, mensaje) {
+    const errorDiv = document.getElementById(id);
+    errorDiv.textContent = mensaje;
+    errorDiv.style.display = 'block';
+}
+
+// LOGIN
+window.entrar = async function() {
+    const email = document.getElementById('login-email').value.trim();
+    const password = document.getElementById('login-password').value.trim();
+    const btn = document.getElementById('btn-login');
+
+    if (!email || !password) {
+        mostrarError('login-error', 'Completa email y contraseña');
+        return;
+    }
+
+    btn.classList.add('loading');
+    btn.disabled = true;
+
+    try {
+        const resultado = await signInWithEmailAndPassword(auth, email, password);
+        localStorage.setItem('usuario-email', email);
+        localStorage.setItem('usuario-id', resultado.user.uid);
+        window.location.href = 'index.html';
+    } catch (error) {
+        btn.classList.remove('loading');
+        btn.disabled = false;
+
+        if (error.code === 'auth/user-not-found') {
+            mostrarError('login-error', 'Usuario no encontrado');
+        } else if (error.code === 'auth/wrong-password') {
+            mostrarError('login-error', 'Contraseña incorrecta');
+        } else if (error.code === 'auth/invalid-email') {
+            mostrarError('login-error', 'Email inválido');
+        } else if (error.code === 'auth/invalid-credential') {
+            mostrarError('login-error', 'Email o contraseña incorrectos');
+        } else {
+            mostrarError('login-error', error.message);
+        }
+    }
+}
+
+// REGISTRO
+window.registrarse = async function() {
+    const email = document.getElementById('registro-email').value.trim();
+    const password = document.getElementById('registro-password').value.trim();
+    const password2 = document.getElementById('registro-password2').value.trim();
+    const btn = document.getElementById('btn-registro');
+
+    if (!email || !password || !password2) {
+        mostrarError('registro-error', 'Completa todos los campos');
+        return;
+    }
+
+    if (password !== password2) {
+        mostrarError('registro-error', 'Las contraseñas no coinciden');
+        return;
+    }
+
+    if (password.length < 6) {
+        mostrarError('registro-error', 'La contraseña debe tener al menos 6 caracteres');
+        return;
+    }
+
+    btn.classList.add('loading');
+    btn.disabled = true;
+
+    try {
+        const resultado = await createUserWithEmailAndPassword(auth, email, password);
+        localStorage.setItem('usuario-email', email);
+        localStorage.setItem('usuario-id', resultado.user.uid);
+        alert('✅ Cuenta creada correctamente');
+        window.location.href = 'index.html';
+    } catch (error) {
+        btn.classList.remove('loading');
+        btn.disabled = false;
+
+        if (error.code === 'auth/email-already-in-use') {
+            mostrarError('registro-error', 'Este email ya está registrado');
+        } else if (error.code === 'auth/weak-password') {
+            mostrarError('registro-error', 'La contraseña es muy débil');
+        } else if (error.code === 'auth/invalid-email') {
+            mostrarError('registro-error', 'Email inválido');
+        } else {
+            mostrarError('registro-error', error.message);
+        }
+    }
+}
+
+// VERIFICAR SESIÓN ACTIVA
+onAuthStateChanged(auth, (user) => {
+    if (user) {
+        localStorage.setItem('usuario-email', user.email);
+        localStorage.setItem('usuario-id', user.uid);
+        window.location.href = 'index.html';
+    }
+});
+</script>
+
+</body>
+</html>

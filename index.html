@@ -16,8 +16,13 @@
     <span id="header-date"></span>
   </div>
   <div style="text-align:right">
-    <div style="font-size:20px">📦</div>
-    <span id="total-palets-header" style="font-size:11px;color:var(--muted)"></span>
+    <div style="display:flex;gap:8px;align-items:center;flex-direction:column">
+      <span id="usuario-actual" style="font-size:12px;color:var(--muted)"></span>
+      <button class="btn-logout" onclick="cerrarSesion()">Salir</button>
+    </div>
+    <div style="margin-top:6px">
+      <span id="total-palets-header" style="font-size:11px;color:var(--muted)"></span>
+    </div>
   </div>
 </header>
 
@@ -156,6 +161,58 @@
 <input type="file" id="file-input" accept=".json" style="display:none" onchange="cargarJSON()">
 
 <script src="app.js"></script>
+
+<!-- Firebase SDK (Modular) -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-app.js";
+import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-auth.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAj-Klw0UWECBTwVq1QpMb154aWFc_nV7c",
+  authDomain: "paletautheticator.firebaseapp.com",
+  projectId: "paletautheticator",
+  storageBucket: "paletautheticator.firebasestorage.app",
+  messagingSenderId: "824517944112",
+  appId: "1:824517944112:web:4e24f04594aafcd3451ef5"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+
+window.cerrarSesion = async function() {
+    if (!confirm('¿Cerrar sesión?')) return;
+    
+    try {
+        await signOut(auth);
+        localStorage.removeItem('usuario-email');
+        localStorage.removeItem('usuario-id');
+        window.location.href = 'indexlogin.html';
+    } catch (error) {
+        alert('Error al cerrar sesión: ' + error.message);
+    }
+}
+
+window.addEventListener('load', () => {
+    const email = localStorage.getItem('usuario-email');
+    if (!email) {
+        window.location.href = 'indexlogin.html';
+    } else {
+        document.getElementById('usuario-actual').textContent = email;
+    }
+});
+
+// Verificar sesión activa
+onAuthStateChanged(auth, (user) => {
+    if (!user) {
+        const email = localStorage.getItem('usuario-email');
+        if (email) {
+            localStorage.removeItem('usuario-email');
+            localStorage.removeItem('usuario-id');
+            window.location.href = 'indexlogin.html';
+        }
+    }
+});
+</script>
 
 </body>
 </html>

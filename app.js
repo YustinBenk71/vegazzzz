@@ -20,7 +20,29 @@ function migrarDatosAntiguos() {
     }
   }
 }
+// ===== VERIFICAR LOGIN =====
+function verificarLogin() {
+    const email = localStorage.getItem('usuario-email');
+    if (!email) {
+        // Si no hay email, redirigir a login
+        window.location.href = 'indexlogin.html';
+    } else {
+        // Mostrar email en header
+        document.getElementById('usuario-actual').textContent = email;
+    }
+}
 
+function logout() {
+    if (!confirm('¿Cerrar sesión?')) return;
+    localStorage.removeItem('usuario-email');
+    window.location.href = 'indexlogin.html';
+}
+
+// ===== VERIFICAR AL CARGAR =====
+window.addEventListener('load', () => {
+    verificarLogin();
+    // ... resto del código
+});
 // ===== ESTADO =====
 let palets = [];
 let editingPaletId = null;
